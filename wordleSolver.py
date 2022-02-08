@@ -2,7 +2,17 @@
 from copy import copy
 import string
 
-def filterWords (word):
+def filterWordsIndex(word):
+    count = 0
+    for key in letterIndex:
+        if (key[0] == word[letterIndex[key]]):
+            count+=1
+    if(count == len(letterIndex)):
+        return True
+    else:
+        return False
+
+def filterWordsContain (word):
     #print (all([letters in word for letters in lettersInWord]))
     countIn = 0
     countNot = 0
@@ -80,7 +90,7 @@ print (max(weightLetters))
 filteredWords = linesFormatted
 
 # print (ord('a')-97)
-for i in range(0,5):
+for i in range(0,6):
 
     weightWords = []
     for word in filteredWords:
@@ -102,23 +112,29 @@ for i in range(0,5):
 
     lettersInWord = []
     lettersNotInWord = []
+    letterIndex = {}
 
     index = 0
+
     for i in guess1Result:
         #print (i)
-        if (int(i)==1):
+        if (int(i)>0):
             lettersInWord.append(guess1[index])
         elif (int(i)==0):
             lettersNotInWord.append(guess1[index])
+        if (int(i)==2):
+            letterIndex[guess1[index]+str(index)] = index
 
         index+=1
 
+    print(letterIndex)
     print (lettersInWord)
     print (lettersNotInWord)
 
 
 
 
-    filteredWords = list(filter(filterWords, filteredWords))
+    filteredWords = list(filter(filterWordsContain, filteredWords))
+    filteredWords = list(filter(filterWordsIndex, filteredWords))
 
     print(filteredWords)
