@@ -1,66 +1,35 @@
-
-from ast import Break
-from copy import copy
-import string
-
-def filterWordsIndex(word):
+def filterGreenLetters(word):
     count = 0
-    for key in letterIndex:
-        if (key[0] == word[letterIndex[key]]):
+    for key in greenLettersIndex:
+        if (key[0] == word[greenLettersIndex[key]]):
             count+=1
-    if(count == len(letterIndex)):
-        return True
-    else:
-        return False
+    return True if count == len(greenLettersIndex) else False
 
-def filterWordsWrongIndex(word):
+def filterYellowLetterIndex(word):
     count = 0
-    for key in letterWrongIndex:
-        if (key[0] == word[letterWrongIndex[key]]):
+    for key in yellowLetterIndex:
+        if (key[0] == word[yellowLetterIndex[key]]):
             count+=1
-    if(count == 0):
-        return True
-    else:
-        return False
-
-#Add index filter to remove words that have letter index incorrectly
+    return True if count == 0 else False
 
 def filterWordsContain (word):
-    #print (all([letters in word for letters in lettersInWord]))
-    countIn = 0
-    countNot = 0
-    copyLettersInWord = lettersInWord[:]
-    copyLettersNotInWord = lettersNotInWord[:]
-
-    wordCopy= word[:]
-    for character in wordCopy:
-        for letter in copyLettersInWord:
+    yellowLetterCount, grayLetterCount = 0, 0
+    copyYellowLetters = yellowLetters[:]
+    copyGrayLetters = grayLetters[:]
+    copyWord= word[:]
+    for character in copyWord:
+        for letter in copyYellowLetters:
             if (letter==character):
-                #print(lettersInWord)
-                copyLettersInWord.remove(letter)
+                copyYellowLetters.remove(letter)
                 word = word.replace(letter,'',1)
-                # print(word)
-                countIn+=1
-                break
-
+                yellowLetterCount+=1
     for character in word:
-        for letter in copyLettersNotInWord:
+        for letter in copyGrayLetters:
             if (letter==character):
-                # print (word)
-                # print(lettersNotInWord)
-                copyLettersNotInWord.remove(letter)
+                copyGrayLetters.remove(letter)
                 word = word.replace(letter,'',1)
-                countNot+=1
-                break
-
-    
-    # print (countNot)
-    if countIn == len(lettersInWord) and countNot == 0:
-         return True 
-    else:
-        return False
-
-
+                grayLetterCount+=1
+    return True if(yellowLetterCount==len(yellowLetters) and grayLetterCount==0) else False
 
 with open('words.txt') as f:
     lines = f.readlines()
@@ -71,35 +40,23 @@ for word in lines:
 def removeBreak(word):
     return word[0:-1]
 
-
-
-
 linesFormatted = list(map(removeBreak, lines))
 
 alph = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-i=0
-count = [0] * 26
+i, count, weightLetters, wordCount = 0, [0]*26, [], len(linesFormatted)
 
-print (count)
 for c in alph:
     for word in linesFormatted:
         if (c in word):
             count[i]+=1
     i+=1
 
-print (count)
-wordCount = len(linesFormatted)
-
-weightLetters =[]
-
 for n in count:
     weightLetters.append(n/wordCount)
 
-print (max(weightLetters))
 filteredWords = linesFormatted
-guessNum = 0
+guessNum, guessedLetters = 0, ''
 while guessNum < 6:
-
     weightWords = []
     for word in filteredWords:
         prob = 1
@@ -107,51 +64,37 @@ while guessNum < 6:
         for letter in word:
             prob*=weightLettersCopy[(ord(letter)-97)]
             #Penalize repeated leters
-            weightLettersCopy[(ord(letter)-97)] = weightLettersCopy[(ord(letter)-97)] * 0.6
+            weightLettersCopy[(ord(letter)-97)] *= 0.6
+
         weightWords.append(prob)
 
-    guess1=filteredWords[weightWords.index(max(weightWords))]
-    print (guess1)
+    suggestedGuess=filteredWords[weightWords.index(max(weightWords))]
+    print ("\nPLEASE TRY: " + suggestedGuess)
+    guessedLetters += suggestedGuess
 
-    #print(type(linesFormatted))
 
+    print ("\n  Format: \n  Grey == 0 \n  Yellow == 1 \n  Green == 2 \n")
+    guessResult = input('Please enter results: ')
 
-    guess1Result = input('Please enter results: ')
+    yellowLetters, grayLetters, greenLettersIndex, yellowLetterIndex, index = [], [], {}, {}, 0
 
-    if(guess1Result == "22222"):
-        guessNum=7
-        print ("YOU WINNNNNN!!!!!!!!!")
-        Break
-
-    lettersInWord = []
-    lettersNotInWord = []
-    letterIndex = {}
-    letterWrongIndex = {}
-
-    index = 0
-
-    for j in guess1Result:
-        if (int(j)>0):
-            lettersInWord.append(guess1[index])
-            if(int(j)==1):
-                letterWrongIndex[guess1[index]+str(index)] = index
-        elif (int(j)==0):
-            lettersNotInWord.append(guess1[index])
-        if (int(j)==2):
-            letterIndex[guess1[index]+str(index)] = index
-
+    for letterResultNum in guessResult:
+        if (int(letterResultNum)>0):
+            yellowLetters.append(suggestedGuess[index])
+            if(int(letterResultNum)==1):
+                yellowLetterIndex[suggestedGuess[index]+str(index)] = index
+        elif (int(letterResultNum)==0):
+            grayLetters.append(suggestedGuess[index])
+        if (int(letterResultNum)==2):
+            greenLettersIndex[suggestedGuess[index]+str(index)] = index
         index+=1
 
-    # print(letterIndex)
-    # print (lettersInWord)
-    # print (lettersNotInWord)
-
-
-
-
     filteredWords = list(filter(filterWordsContain, filteredWords))
-    filteredWords = list(filter(filterWordsIndex, filteredWords))
-    filteredWords = list(filter(filterWordsWrongIndex, filteredWords))
+    filteredWords = list(filter(filterGreenLetters, filteredWords))
+    filteredWords = list(filter(filterYellowLetterIndex, filteredWords))
+    print("\nPossible words:")
     print(filteredWords)
 
-
+    if(guessResult == "22222"):
+        guessNum=7
+        print ("YOU WINNNNNN!!!!!!!!!")
