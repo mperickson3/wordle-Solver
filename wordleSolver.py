@@ -5,6 +5,9 @@ def filterGreenLetters(word):
             count+=1
     return True if count == len(greenLettersIndex) else False
 
+def testFunction():
+    print ("test")
+
 def filterYellowLetterIndex(word):
     count = 0
     for key in yellowLetterIndex:
@@ -30,6 +33,7 @@ def filterWordsContain (word):
                 word = word.replace(letter,'',1)
                 grayLetterCount+=1
     return True if(yellowLetterCount==len(yellowLetters) and grayLetterCount==0) else False
+
 
 with open('words.txt') as f:
     lines = f.readlines()
@@ -98,3 +102,4 @@ while guessNum < 6:
     if(guessResult == "22222"):
         guessNum=7
         print ("YOU WINNNNNN!!!!!!!!!")
+
